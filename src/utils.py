@@ -75,7 +75,7 @@ def setup_logging(debug_mode,file) -> None:
     
 
 
-def transcribe_youtube_and_split(url: str, chunk_size: int = 1000, chunk_overlap: int = 20):
+def transcribe_youtube_and_split(url: str):
     """
     Descarga el audio de un video de YouTube, lo transcribe usando Whisper y divide el texto en fragmentos.
 
@@ -117,7 +117,20 @@ def transcribe_youtube_and_split(url: str, chunk_size: int = 1000, chunk_overlap
         logger.debug("Iniciando transcripción con Whisper.")
         transcription = whisper_model.transcribe(audio_file, fp16=False)["text"].strip()
 
-        logger.debug("Transcripción completada. Dividiendo en fragmentos.")
+        logger.debug("Transcripción completada")
+        return transcription
+    
+def generate_documents(transcription: str, chunk_size: int = 1000, chunk_overlap: int = 50):
+        """
+        Divide el texto transcrito en fragmentos utilizando RecursiveCharacterTextSplitter.
+        Parameters:
+            transcription (str): Texto transcrito a dividir.
+            chunk_size (int): Tamaño máximo de cada fragmento de texto.
+            chunk_overlap (int): Número de caracteres que se superponen entre fragmentos.
+        Returns:
+            List[str]: Lista de fragmentos de texto generados a partir de la transcripción.
+        """
+        logger.debug("Dividiendo la transcripción en fragmentos.")
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap
