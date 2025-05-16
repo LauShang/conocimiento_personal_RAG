@@ -177,3 +177,5 @@ cython_debug/
 config.yaml
 test.ipynb
 *.log
+docs/
+.DS_Store
