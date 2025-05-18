@@ -1,0 +1,3 @@
+function startLoading() {
+    alert('Processing...');
+}
