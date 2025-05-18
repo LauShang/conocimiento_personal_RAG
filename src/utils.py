@@ -23,6 +23,7 @@ class Config:
         self.config = self.read_configuration()
         self.creds = self.config["credentials"]
         self.model = self.config["model"]
+        self.app = self.config["app"]
 
     def read_configuration(self):
         """
@@ -79,6 +80,7 @@ def setup_logging(debug_mode, file) -> None:
     logging.getLogger("httpcore.connection").setLevel(logging.WARNING)
     logging.getLogger("httpcore.http11").setLevel(logging.WARNING)
     logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+    logging.getLogger("langsmith.client").setLevel(logging.WARNING)
 
 
 def download_youtube_audio_and_transcribe(url: str) -> str:
