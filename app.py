@@ -1,9 +1,14 @@
 import os
 import logging
 import time
-from src.utils import setup_logging, Config
 from flask import Flask, render_template, request, jsonify
 from src.model_cp import PersonalKnowleged
+from src.utils import (
+    setup_logging,
+    Config,
+    download_youtube_audio_and_transcribe,
+    generate_documents,
+    )
 # Configuración de logging
 logger = logging.getLogger(__name__)
 setup_logging(debug_mode=True,file='logs/rag.log')
@@ -39,6 +44,20 @@ def ask():
 
     answer = model.retrieval_answer(question)
     return jsonify({"answer": answer})
+
+@app.route('/process_youtube', methods=['POST'])
+def process_youtube():
+    data = request.json
+    url = data.get('url')
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+    # Download audio and transcribe
+    transcription = download_youtube_audio_and_transcribe(url)
+    # Generate documents
+    documents = generate_documents(transcription=transcription, metadata={"source": url})
+    # Add documents to the vector store
+    model.add_documents(documents)
+    return jsonify({"message": "Processing complete!", "transcription": transcription})
 
 if __name__ == '__main__':
     app.run(debug=True,port=config.app.get('port'))
