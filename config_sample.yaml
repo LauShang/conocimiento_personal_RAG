@@ -17,7 +17,6 @@ credentials:
   LANGSMITH_API_KEY:
   LANGSMITH_PROJECT:
 model:
-  embedding_model_name:
-  ollama_model:
+  embedding_model_name: "all-MiniLM-L6-v2"
   temperature: 0.4
   

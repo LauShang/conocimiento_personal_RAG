@@ -29,6 +29,10 @@ poetry run python app.py
 
 Configura el archivo de configuración:
 * Edita config.yaml para incluir tus claves API y otras configuraciones.
+* los servicio que utiliza este repositorio son 
+  * [OpenAI](https://platform.openai.com/docs/introduction)
+  * [Pinecone](https://docs.pinecone.io/docs/quickstart)
+  * [LangSmith](https://docs.smith.langchain.com/)
 
 Ejecuta la aplicación:
 
