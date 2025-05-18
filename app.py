@@ -1,6 +1,7 @@
 import os
 import logging
 import time
+import tempfile
 from flask import Flask, render_template, request, jsonify
 from src.model_cp import PersonalKnowleged
 from src.utils import (
@@ -8,6 +9,7 @@ from src.utils import (
     Config,
     download_youtube_audio_and_transcribe,
     generate_documents,
+    transcribe_audio,
     )
 # Configuración de logging
 logger = logging.getLogger(__name__)
@@ -58,6 +60,30 @@ def process_youtube():
     # Add documents to the vector store
     model.add_documents(documents)
     return jsonify({"message": "Processing complete!", "transcription": transcription})
+
+@app.route('/process_mp3', methods=['POST'])
+def process_mp3():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    # Save the file temporarily
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        file.save(temp_file.name)
+        temp_file_path = temp_file.name
+
+    try:
+        transcription = transcribe_audio(temp_file_path)
+        # Generate documents
+        documents = generate_documents(transcription=transcription, metadata={"source": temp_file_path})
+        # Add documents to the vector store
+        model.add_documents(documents)
+        return jsonify({"message": "Processing complete!", "transcription": transcription})
+    finally:
+        os.remove(temp_file_path)
 
 if __name__ == '__main__':
     app.run(debug=True,port=config.app.get('port'))
