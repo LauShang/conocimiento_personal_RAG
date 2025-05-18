@@ -101,7 +101,7 @@ Respuesta:
         docs = self.vectorstore.similarity_search_with_score(question, k=k)
         filtered_docs = [(doc, score) for doc, score in docs if score >= threshold]
         # Filtra documentos por score
-        logger.debug(f"docs relevante: {filtered_docs} de {len(docs)}")
+        logger.debug(f"docs relevante: {len(filtered_docs)} de {len(docs)}")
         for doc in docs:
             context_compresed += (self.compressor_chain.invoke(
                 {
