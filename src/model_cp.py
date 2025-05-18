@@ -1,3 +1,4 @@
+import logging
 from langchain_ollama import ChatOllama
 from langchain.chains import LLMChain
 from langchain.schema.document import Document
@@ -10,6 +11,8 @@ from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import LLMChainExtractor
 from src.utils import Config
+
+logger = logging.getLogger(__name__)
 
 
 class PersonalKnowleged:
@@ -25,6 +28,7 @@ class PersonalKnowleged:
     """
 
     def __init__(self, config: Config):
+        logger.info("Iniciando el sistema de conocimiento personal.")
         self.config = config
         self.model_name = self.config.model.get('embedding_model_name')
         self.ollama_model_name = self.config.model.get('ollama_model')
@@ -48,24 +52,19 @@ class PersonalKnowleged:
         compression_prompt = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate.from_template(
                 "Eres un asistente experto en extracción de información relevante. "
-                "Tienes dos tareas principales, resumir el texto que se te proporciona y después de forma breve "
-                "poner la relación que tiene el texto con la pregunta. \n"
-                "El resumen es **Obligatorio**, mientras que la relación es **Opcional** (Si el texto no es útil, devuelve una cadena vacía.)\n"
+                "Tienes dos tareas principales, parafrasear el texto que se te proporciona, mantenido la longitud original "
+                "y después de forma breve poner la relación que tiene el texto con la _pregunta_. \n"
+                "El parafraseo es **Obligatorio**, mientras que la relación es **Opcional** (Si el texto no es útil, devuelve una cadena vacía.)\n"
                 "**No inventes información.**"
-                "La respueta debe seguir el siguiente formato: \nResumen: [tu resumen]\n\nRelación: [tu relación con la pregunta]"
+                "La respueta debe seguir el siguiente formato: \nTexto Parafraseado: '...'\n\nRelación: [tu relación con la pregunta]\n\n"
             ),
             HumanMessagePromptTemplate.from_template(
                 "Contexto:\n{context}\n\nPregunta:\n{question}"
             )
         ])
-        compressor_chain = compression_prompt | self.model
-
-        custom_extractor = LLMChainExtractor(llm_chain=compressor_chain)
-        # Retriever con compresión
-        self.retriever = ContextualCompressionRetriever(
-            base_compressor=custom_extractor,
-            base_retriever=self.vectorstore.as_retriever()
-        )
+        self.compressor_chain = compression_prompt | self.model | self.parser
+        # retriever
+        self.retriever = self.vectorstore.as_retriever()
 
         # Pipeline RAG
         # Prompt
@@ -83,9 +82,9 @@ Pregunta:
 
 Respuesta:
 """
-        self.prompt = ChatPromptTemplate_prompts.from_template(template)
-        self.setup = RunnableParallel(context=self.retriever, question=RunnablePassthrough())
-        self.chain = self.setup | self.prompt | self.ollama_model
+        self.rag_prompt = ChatPromptTemplate_prompts.from_template(template)
+        # RAG LLM
+        self.rag_chain = self.rag_prompt | self.ollama_model
 
     def similarity_check(self, question: str, k: int = 4) -> list:
         """
@@ -93,11 +92,28 @@ Respuesta:
         """
         return self.vectorstore.similarity_search(question, k=k)
 
-    def retrieval_answer(self, question: str) -> str:
+    def retrieval_answer(self, question: str, k:int = 4, threshold:float = 0.4) -> str:
         """
         Responde a una pregunta utilizando el pipeline RAG con compresión de contexto.
         """
-        return self.chain.invoke(question)
+        # Recupera documentos relevantes
+        context_compresed = ""
+        docs = self.vectorstore.similarity_search_with_score(question, k=k)
+        filtered_docs = [(doc, score) for doc, score in docs if score >= threshold]
+        # Filtra documentos por score
+        logger.debug(f"docs relevante: {filtered_docs} de {len(docs)}")
+        for doc in docs:
+            context_compresed += (self.compressor_chain.invoke(
+                {
+                    'context': doc[0].page_content,
+                    'question': question
+                }
+            ) + "\n\n")
+        context_compresed = context_compresed.replace("Texto Parafraseado: ", "Documento: ")
+        promt = {"context": context_compresed, "question": question}
+        # Ejecuta el pipeline RAG
+        logger.debug(f"Contexto comprimido: {context_compresed}")
+        return self.rag_chain.invoke(promt)
 
     def add_document(self, documents: list[Document]) -> None:
         """
