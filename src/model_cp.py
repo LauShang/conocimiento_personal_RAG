@@ -1,5 +1,6 @@
 import logging
-from langchain_ollama import ChatOllama
+#from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain.schema.document import Document
 from langchain.prompts.chat import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
@@ -20,7 +21,7 @@ class PersonalKnowleged:
     Clase para gestionar un sistema de conocimiento personal utilizando modelos de lenguaje y búsqueda vectorial.
 
     Esta clase configura un pipeline de Recuperación-Augmentada-Generación (RAG) usando:
-    - Un modelo Ollama para generación de respuestas.
+    - Un modelo para generación de respuestas.
     - Pinecone como vectorstore para recuperación de documentos.
     - HuggingFaceEmbeddings para generar embeddings de texto.
     - Un paso de compresión para reducir ruido en los documentos recuperados.
@@ -35,9 +36,10 @@ class PersonalKnowleged:
         self.ollama_temperature = self.config.model.get('temperature')
         self.pinecone_index = self.config.creds.get('pinecone_index')
         self.pinecone_api_key = self.config.creds.get('pinecone_api_key')
+        self.openai_key = self.config.creds.get('openai_api_key')
 
         # Modelo LLM principal
-        self.model = ChatOllama(model=self.ollama_model_name, temperature=self.ollama_temperature)
+        self.model = ChatOpenAI(api_key=self.openai_key, temperature=self.ollama_temperature)
         self.parser = StrOutputParser()
         self.ollama_model = self.model | self.parser
 
@@ -52,14 +54,11 @@ class PersonalKnowleged:
         compression_prompt = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate.from_template(
                 "Eres un asistente experto en extracción de información relevante. "
-                "Tienes dos tareas principales, parafrasear el texto que se te proporciona, mantenido la idea y longitud similar del texto "
-                "y después de forma breve poner la relación que tiene el texto con la _pregunta_. \n"
-                "El parafraseo es **Obligatorio**, mientras que la relación es **Opcional** (Si el texto no es útil, devuelve una cadena vacía.)\n"
+                "Tienes una tarea principal, parafrasear el texto que se te proporciona, mantenido la idea y longitud similar del texto\n"
                 "**No inventes información.**"
-                "La respueta debe seguir el siguiente formato: \nTexto Parafraseado: '...'\n\nRelación: [tu relación con la pregunta]\n\n"
             ),
             HumanMessagePromptTemplate.from_template(
-                "Contexto:\n{context}\n\nPregunta:\n{question}"
+                "Contexto:\n{context}"
             )
         ])
         self.compressor_chain = compression_prompt | self.model | self.parser
@@ -70,17 +69,18 @@ class PersonalKnowleged:
         # Prompt
         template = """
 Instrucciones:
-Responde solo si puedes encontrar la información directamente en el contexto. Si no puedes, responde exactamente con: "No tengo suficiente información para responder esa pregunta."
+Responde con base en el contexto que te proporciona el documento.
+Prioriza el tema central de la pregunta para dar una respuesta más acertada, ya que puede haber información que no este directamente relacionada con la pregunta.
+Si no puedes, responde exactamente con: "No tengo suficiente información para responder esa pregunta."
 
-Sé directo y preciso. No inventes información. No agregues opiniones ni explicaciones si no se piden.
+Sé breve, claro y preciso respecto a la información que proporciones.
+No inventes información. No agregues opiniones ni explicaciones si no se piden, pues el objetivo es darle al usuario información clara con base en el contexto.
 
 Contexto:
 {context}
 
 Pregunta:
 {question}
-
-Respuesta:
 """
         self.rag_prompt = ChatPromptTemplate_prompts.from_template(template)
         # RAG LLM
@@ -105,16 +105,14 @@ Respuesta:
         for doc in docs:
             context_compresed += (self.compressor_chain.invoke(
                 {
-                    'context': doc[0].page_content,
-                    'question': question
+                    'context': doc[0].page_content
                 }
             ) + "\n\n")
-        context_compresed = context_compresed.replace("Texto Parafraseado: ", "Documento: ")
         promt = {"context": context_compresed, "question": question}
         # Ejecuta el pipeline RAG
         return self.rag_chain.invoke(promt)
 
-    def add_document(self, documents: list[Document]) -> None:
+    def add_documents(self, documents: list[Document]) -> None:
         """
         Agrega un nuevo documento al almacén vectorial.
         """
