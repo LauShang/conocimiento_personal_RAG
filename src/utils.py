@@ -142,7 +142,7 @@ def transcribe_audio(audio_file: str) -> str:
 def generate_documents(
     transcription: str,
     chunk_size: int = 800,
-    chunk_overlap: int = 400,
+    chunk_overlap: int = 300,
     metadata: dict = None,
 ) -> list[Document]:
     """
