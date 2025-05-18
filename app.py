@@ -85,5 +85,18 @@ def process_mp3():
     finally:
         os.remove(temp_file_path)
 
+@app.route('/process_text', methods=['POST'])
+def process_text():
+    data = request.json
+    text = data.get('text')
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    # Generate documents
+    documents = generate_documents(transcription=text, metadata={"source": "user_input"})
+    # Add documents to the vector store
+    model.add_documents(documents)
+    return jsonify({"message": "Processing complete!"})
+
 if __name__ == '__main__':
     app.run(debug=True,port=config.app.get('port'))

@@ -81,6 +81,7 @@ def setup_logging(debug_mode, file) -> None:
     logging.getLogger("httpcore.http11").setLevel(logging.WARNING)
     logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
     logging.getLogger("langsmith.client").setLevel(logging.WARNING)
+    logging.getLogger("openai._base_client").setLevel(logging.WARNING)
 
 
 def download_youtube_audio_and_transcribe(url: str) -> str:

@@ -160,3 +160,60 @@ function processMP3() {
             button.innerText = originalText;
         });
 }
+
+function processText() {
+    const text = document.getElementById('text-input').value;
+    const button = document.querySelector('#text-input').nextElementSibling;
+    const card = button.parentElement;
+    const originalText = button.innerText;
+
+    if (!text.trim()) {
+        alert('Please enter some text.');
+        return;
+    }
+
+    // Create a loading spinner
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner';
+    card.appendChild(spinner);
+
+    // Disable the button
+    button.disabled = true;
+    button.innerText = 'Processing...';
+
+    fetch('/process_text', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Remove the spinner
+            card.removeChild(spinner);
+
+            // Re-enable the button and show success message
+            button.disabled = false;
+            button.innerText = originalText;
+
+            const successMessage = document.createElement('p');
+            successMessage.className = 'success-message';
+            successMessage.innerText = data.message || 'Processing complete!';
+            card.appendChild(successMessage);
+
+            // Remove the success message after 3 seconds
+            setTimeout(() => {
+                card.removeChild(successMessage);
+            }, 3000);
+
+            // Clear the text input
+            document.getElementById('text-input').value = '';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            card.removeChild(spinner);
+            button.disabled = false;
+            button.innerText = originalText;
+        });
+}
