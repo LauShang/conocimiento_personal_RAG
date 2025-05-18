@@ -1,0 +1,23 @@
+main:
+  project_name: "Conocimiento Personal"
+  author: "Lauro Reyes"
+  description: "Proyecto para la materia Temas Selectos de Analisis de Datos"
+app:
+  title: "Conocimiento Personal"
+  description: "Proyecto para la materia Temas Selectos de Analisis de Datos"
+  version: "0.1.0"
+  host: "localhost"
+  port: 4000
+credentials:
+  openai_api_key:
+  pinecone_api_key:
+  pinecone_index:
+  LANGSMITH_TRACING: "true"
+  LANGSMITH_ENDPOINT: "https://api.smith.langchain.com"
+  LANGSMITH_API_KEY:
+  LANGSMITH_PROJECT:
+model:
+  embedding_model_name:
+  ollama_model:
+  temperature: 0.4
+  

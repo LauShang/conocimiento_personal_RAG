@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "central-zoo-knowledge"
+version = "0.1.0"
+description = "A Flask-based web application for managing and retrieving personal information."
+authors = ["Lauro Reyes"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^2.3.2"
+langchain = "^0.0.200"
+whisper = "^1.0"
+yt-dlp = "^2023.3.4"
+pinecone-client = "^2.2.1"
+pyyaml = "^6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
