@@ -12,6 +12,7 @@
         <a href="/input" class="active">Input Data</a>
     </div>
     <div class="main">
+        <h1 class="title">Central Zoo</h1>
         <div class="card">
             <h3>YouTube</h3>
             <input type="text" id="youtube-url" placeholder="Paste YouTube URL here...">
@@ -29,7 +30,8 @@
         </div>
         <div class="card">
             <h3>PDF</h3>
-            <button onclick="startLoading(this)">Process</button>
+            <input type="file" id="pdf-file" accept="application/pdf">
+            <button onclick="processPDF()">Process</button>
         </div>
     </div>
     <script src="/static/scripts.js"></script>

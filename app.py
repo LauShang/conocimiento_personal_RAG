@@ -10,6 +10,7 @@ from src.utils import (
     download_youtube_audio_and_transcribe,
     generate_documents,
     transcribe_audio,
+    get_pdf,
     )
 # Configuración de logging
 logger = logging.getLogger(__name__)
@@ -97,6 +98,28 @@ def process_text():
     # Add documents to the vector store
     model.add_documents(documents)
     return jsonify({"message": "Processing complete!"})
+
+@app.route('/process_pdf', methods=['POST'])
+def process_pdf():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    # Save the file temporarily
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        file.save(temp_file.name)
+        temp_file_path = temp_file.name
+
+    try:
+        documents = get_pdf(temp_file_path)
+        # Add documents to the vector store
+        model.add_documents(documents)
+        return jsonify({"message": "Processing complete!"})
+    finally:
+        os.remove(temp_file_path)
 
 if __name__ == '__main__':
     app.run(debug=True,port=config.app.get('port'))

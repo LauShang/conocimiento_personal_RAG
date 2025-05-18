@@ -9,6 +9,7 @@ import yt_dlp
 import whisper
 import tempfile
 import os
+import PyPDF2
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.document import Document
 
@@ -176,3 +177,29 @@ def generate_documents(
         f"Transcripción y división completadas. Fragmentos generados: {len(documents)}"
     )
     return documents
+
+
+def get_pdf(file_path: str) -> list[Document]:
+    """
+    Extrae texto de un archivo PDF.
+
+    Parameters:
+        file_path (str): Ruta al archivo PDF.
+    """
+    logger.debug("Cargando el lector de PDF.")
+    docs = list()
+    with open(file_path, 'rb') as pdf_file_obj:
+        pdf_reader = PyPDF2.PdfReader(pdf_file_obj)
+        for i, page_obj in enumerate(pdf_reader.pages):
+            text = page_obj.extract_text()
+            if text:
+                doc = generate_documents(transcription=text,
+                    chunk_size=1000,
+                    chunk_overlap=200,
+                    metadata={
+                        "source": file_path,
+                        "page": i
+                })
+                docs.extend(doc)
+    logger.info(f"PDF leído y convertido a documentos. Total de documentos: {len(docs)}")
+    return docs
