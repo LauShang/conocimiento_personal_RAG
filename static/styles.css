@@ -1,60 +1,60 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     margin: 0;
     display: flex;
+    background-color: #f9f9f9;
+    color: #333;
 }
 
 .sidebar {
     width: 200px;
-    background-color: #f4f4f4;
+    background-color: #4CAF50; /* Green theme for the zoo */
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     height: 100vh;
+    color: white;
 }
 
 .sidebar a {
     display: block;
     padding: 10px;
-    color: #333;
+    color: white;
     text-decoration: none;
     margin-bottom: 10px;
     border-radius: 5px;
+    font-weight: bold;
 }
 
 .sidebar a.active {
-    background-color: #ddd;
-    font-weight: bold;
+    background-color: #45a049;
 }
 
 .main {
     flex: 1;
     padding: 20px;
-}
-
-.chat-input {
-    width: 80%;
-    height: 200px;
-    font-size: 16px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    background-image: url('/static/zoo-background.jpg'); /* Add a zoo-themed background */
+    background-size: cover;
+    background-position: center;
 }
 
 .card {
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    opacity: 0.9;
 }
 
 .card h3 {
     margin-top: 0;
+    color: #4CAF50;
 }
 
 .card button {
     padding: 10px 20px;
-    background-color: #007BFF;
+    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
@@ -62,12 +62,22 @@ body {
 }
 
 .card button:hover {
-    background-color: #0056b3;
+    background-color: #45a049;
+}
+
+.chat-input, textarea {
+    width: 80%;
+    height: 100px;
+    font-size: 16px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
 }
 
 .spinner {
     border: 4px solid #f3f3f3; /* Light grey */
-    border-top: 4px solid #007BFF; /* Blue */
+    border-top: 4px solid #4CAF50; /* Green */
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -85,4 +95,11 @@ body {
     font-weight: bold;
     text-align: center;
     margin-top: 10px;
+}
+
+.title {
+    text-align: center;
+    font-size: 2.5em;
+    color: #4CAF50;
+    margin-bottom: 20px;
 }
