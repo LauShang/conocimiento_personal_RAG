@@ -52,7 +52,7 @@ class PersonalKnowleged:
         compression_prompt = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate.from_template(
                 "Eres un asistente experto en extracción de información relevante. "
-                "Tienes dos tareas principales, parafrasear el texto que se te proporciona, mantenido la longitud original "
+                "Tienes dos tareas principales, parafrasear el texto que se te proporciona, mantenido la idea y longitud similar del texto "
                 "y después de forma breve poner la relación que tiene el texto con la _pregunta_. \n"
                 "El parafraseo es **Obligatorio**, mientras que la relación es **Opcional** (Si el texto no es útil, devuelve una cadena vacía.)\n"
                 "**No inventes información.**"
@@ -112,7 +112,6 @@ Respuesta:
         context_compresed = context_compresed.replace("Texto Parafraseado: ", "Documento: ")
         promt = {"context": context_compresed, "question": question}
         # Ejecuta el pipeline RAG
-        logger.debug(f"Contexto comprimido: {context_compresed}")
         return self.rag_chain.invoke(promt)
 
     def add_document(self, documents: list[Document]) -> None:
