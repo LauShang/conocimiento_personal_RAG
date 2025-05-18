@@ -92,7 +92,7 @@ Pregunta:
         """
         return self.vectorstore.similarity_search(question, k=k)
 
-    def retrieval_answer(self, question: str, k:int = 4, threshold:float = 0.4) -> str:
+    def retrieval_answer(self, question: str, k:int = 4, threshold:float = 0.5) -> str:
         """
         Responde a una pregunta utilizando el pipeline RAG con compresión de contexto.
         """
