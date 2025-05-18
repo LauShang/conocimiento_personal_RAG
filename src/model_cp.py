@@ -117,3 +117,4 @@ Pregunta:
         Agrega un nuevo documento al almacén vectorial.
         """
         self.vectorstore.add_documents(documents)
+        logger.info(f"Documentos añadidos: {len(documents)}") 
