@@ -8,6 +8,7 @@ app:
   version: "0.1.0"
   host: "localhost"
   port: 4000
+  debug: true
 credentials:
   openai_api_key:
   pinecone_api_key:

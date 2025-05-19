@@ -12,11 +12,11 @@ from src.utils import (
     transcribe_audio,
     get_pdf,
     )
-# Configuración de logging
-logger = logging.getLogger(__name__)
-setup_logging(debug_mode=True,file='logs/rag.log')
 # Configuración de la aplicación
 config = Config()
+# Configuración de logging
+logger = logging.getLogger(__name__)
+setup_logging(debug_mode=config.app.get('debug'),file='logs/rag.log')
 # variables de entorno
 os.environ["LANGSMITH_TRACING"] = config.creds.get("LANGSMITH_TRACING")
 os.environ["LANGSMITH_ENDPOINT"] = config.creds.get("LANGSMITH_ENDPOINT")
