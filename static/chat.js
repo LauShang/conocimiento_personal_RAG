@@ -1,6 +1,9 @@
 document.querySelector('.chat-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         const question = e.target.value;
+        const loadingIndicator = document.getElementById('loading-indicator');
+        loadingIndicator.style.display = 'block';
+
         fetch('/ask', {
             method: 'POST',
             headers: {
@@ -10,6 +13,8 @@ document.querySelector('.chat-input').addEventListener('keypress', function (e) 
         })
             .then(response => response.json())
             .then(data => {
+                loadingIndicator.style.display = 'none';
+
                 // Create a container div for the question and response
                 const container = document.createElement('div');
                 container.className = 'qa-container';
@@ -32,6 +37,9 @@ document.querySelector('.chat-input').addEventListener('keypress', function (e) 
                 // Clear the input box after the question is answered
                 e.target.value = '';
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                loadingIndicator.style.display = 'none';
+                console.error('Error:', error);
+            });
     }
 });
