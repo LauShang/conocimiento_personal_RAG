@@ -34,11 +34,6 @@ def chat():
 def input_data():
     return render_template('input.html')
 
-@app.route('/process', methods=['POST'])
-def process():
-    time.sleep(5)  # Simulate processing time
-    return jsonify({"message": "Successful"})
-
 @app.route('/ask', methods=['POST'])
 def ask():
     question = request.json.get('question')
