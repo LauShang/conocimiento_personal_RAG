@@ -1,7 +1,6 @@
 import logging
 #from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
-from langchain.chains import LLMChain
 from langchain.schema.document import Document
 from langchain.prompts.chat import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain.prompts import ChatPromptTemplate as ChatPromptTemplate_prompts
@@ -31,20 +30,20 @@ class PersonalKnowleged:
     def __init__(self, config: Config):
         logger.info("Iniciando el sistema de conocimiento personal.")
         self.config = config
-        self.model_name = self.config.model.get('embedding_model_name')
-        self.ollama_model_name = self.config.model.get('ollama_model')
-        self.ollama_temperature = self.config.model.get('temperature')
+        self.embedding_model_name = self.config.model.get('embedding_model_name')
+        self.model_name = self.config.model.get('model_name')
+        self.temperature = self.config.model.get('temperature')
         self.pinecone_index = self.config.creds.get('pinecone_index')
         self.pinecone_api_key = self.config.creds.get('pinecone_api_key')
         self.openai_key = self.config.creds.get('openai_api_key')
 
         # Modelo LLM principal
-        self.model = ChatOpenAI(api_key=self.openai_key, temperature=self.ollama_temperature)
+        self.model = ChatOpenAI(api_key=self.openai_key, model=self.model_name, temperature=self.temperature)
         self.parser = StrOutputParser()
         self.ollama_model = self.model | self.parser
 
         # Embeddings y Vectorstore
-        self.embeddings = HuggingFaceEmbeddings(model_name=self.model_name)
+        self.embeddings = HuggingFaceEmbeddings(model_name=self.embedding_model_name)
         self.vectorstore = PineconeVectorStore(
             pinecone_api_key=self.pinecone_api_key,
             index_name=self.pinecone_index,
