@@ -28,7 +28,7 @@ class PersonalKnowleged:
         logger.info("Iniciando el sistema de conocimiento personal.")
         self.config = config
         self.embedding_model_name = self.config.model.get('embedding_model_name')
-        self.model_name = self.config.model.get('model_name')
+        self.model_name = self.config.model.get('model')
         self.temperature = self.config.model.get('temperature')
         self.pinecone_index = self.config.creds.get('pinecone_index')
         self.pinecone_api_key = self.config.creds.get('pinecone_api_key')
