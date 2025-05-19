@@ -7,9 +7,6 @@ from langchain.prompts import ChatPromptTemplate as ChatPromptTemplate_prompts
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.output_parsers import StrOutputParser
 from langchain_pinecone import PineconeVectorStore
-from langchain_core.runnables import RunnableParallel, RunnablePassthrough
-from langchain.retrievers import ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import LLMChainExtractor
 from src.utils import Config
 
 logger = logging.getLogger(__name__)
